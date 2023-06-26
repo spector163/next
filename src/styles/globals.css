@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .container__carousal {
+    width: min(500px, 95vw);
+    height: 50vh;
+    margin: 50px auto;
+    position: relative;
+  }
+  .img__test {
+    /* width: 90%; */
+    aspect-ratio: 3/4;
+    height: 200px;
+    border: 1px solid green;
+  }
+  .left,
+  .right {
+    position: absolute;
+    content: "";
+    top: 50%;
+    padding: 5px 12px;
+    border: 1px solid red;
+  }
+  .left {
+    left: 0;
+  }
+  .right {
+    right: 0;
+  }
+}
