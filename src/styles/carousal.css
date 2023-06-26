@@ -1,21 +1,21 @@
 .carousel-transition-enter {
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.25);
 }
 
 .carousel-transition-enter-active {
   opacity: 1;
   transform: scale(1);
-  transition: opacity 500ms, transform 500ms;
+  transition: opacity 300ms, transform 300ms;
 }
 
 .carousel-transition-appear {
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.25);
 }
 
 .carousel-transition-appear-active {
   opacity: 1;
   transform: scale(1);
-  transition: opacity 500ms, transform 500ms;
+  transition: opacity 300ms, transform 300ms;
 }
