@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React, {
   TouchEvent,
+  createRef,
   useCallback,
   useEffect,
   useRef,
@@ -8,10 +9,30 @@ import React, {
 } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
 const images = [
-  { src: "/first.jpg", alt: "Image 1", legend: "Legend 1", id: 0 },
-  { src: "/second.jpg", alt: "Image 2", legend: "Legend 2", id: 1 },
-  { src: "/third.jpg", alt: "Image 3", legend: "Legend 3", id: 2 },
-  { src: "/fourth.jpg", alt: "Image 3", legend: "Legend 3", id: 3 },
+  {
+    src: "/first.jpg",
+    alt: "Image 1",
+    legend: "Legend 1",
+    id: 0,
+  },
+  {
+    src: "/second.jpg",
+    alt: "Image 2",
+    legend: "Legend 2",
+    id: 1,
+  },
+  {
+    src: "/third.jpg",
+    alt: "Image 3",
+    legend: "Legend 3",
+    id: 2,
+  },
+  {
+    src: "/fourth.jpg",
+    alt: "Image 3",
+    legend: "Legend 3",
+    id: 3,
+  },
 ];
 let render = 0;
 const Carousal = () => {
@@ -25,35 +46,30 @@ const Carousal = () => {
   };
   const swipeHandlers = useSwipe({
     trackMouse: true,
-    trackTouch: false,
+    trackTouch: true,
     cbNext: () => handleButton("right"),
     cbPrev: () => handleButton("left"),
     autoPlay: true,
   });
-  console.log(render++, "render");
-  const nodeRef = useRef(null);
+  const ref = useRef(null);
+  console.log(currentIndex, "currentIndex");
   return (
-    <div className="container__carousal" {...swipeHandlers}>
+    <div className="container__carousal relative" {...swipeHandlers}>
       <button onClick={() => handleButton("left")} className="left">
         left
       </button>
-      <TransitionGroup>
-        <CSSTransition
-          key={currentIndex}
-          timeout={300}
-          ref={nodeRef}
-          classNames="carousel-transition"
-        >
-          <Image
-            src={images[currentIndex]?.src ?? ""}
-            alt={images[currentIndex]?.alt ?? ""}
-            width={500}
-            height={400}
-            draggable={false}
-            className="h-full w-full object-cover"
-            quality={100}
+      <TransitionGroup
+        className="absolute inset-0 mx-auto grid aspect-square w-[90%] max-w-[600px] grid-cols-1"
+        ref={ref}
+      >
+        {images.map((item, index) => (
+          <ChildItem
+            key={index}
+            alt={item.alt}
+            enter={currentIndex == index}
+            src={item.src}
           />
-        </CSSTransition>
+        ))}
       </TransitionGroup>
       {/* <div className="img__test">{images[currentIndex]?.alt}</div> */}
       <button onClick={(e) => handleButton("right")} className="right">
@@ -64,6 +80,41 @@ const Carousal = () => {
 };
 
 export default Carousal;
+
+const ChildItem = ({
+  enter,
+  src,
+  alt,
+}: {
+  enter: boolean;
+  src: string;
+  alt: string;
+}) => {
+  const ref = useRef(null);
+  return (
+    <CSSTransition
+      classNames="carousel-transition"
+      in={enter}
+      timeout={500}
+      ref={ref}
+      mountOnEnter
+      unmountOnExit
+    >
+      <div ref={ref}>
+        <Image
+          src={src}
+          ref={ref}
+          alt={alt}
+          width={500}
+          height={400}
+          draggable={false}
+          className="col-[1/1] row-[1/1] h-full w-full object-cover"
+          quality={100}
+        />
+      </div>
+    </CSSTransition>
+  );
+};
 
 type SwipeOptions = {
   trackMouse?: boolean;
