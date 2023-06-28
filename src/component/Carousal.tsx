@@ -33,10 +33,13 @@ let render = 0;
 
 const Carousal = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [dir, setDir] = useState<"left" | "right">("right");
   const handleButton = useCallback((dir: "left" | "right") => {
     if (dir == "left") {
+      setDir("left");
       setActiveIndex((v) => (v - 1 + images.length) % images.length);
     } else {
+      setDir("right");
       setActiveIndex((v) => (v + 1) % images.length);
     }
   }, []);
@@ -72,6 +75,7 @@ const Carousal = () => {
             alt={item.alt}
             src={item.src}
             enter={index == activeIndex}
+            direction={dir}
           />
         ))}
       </TransitionGroup>
@@ -85,20 +89,23 @@ const ChildItem = ({
   enter,
   src,
   alt,
+  direction,
 }: {
   enter: boolean;
   src: string;
   alt: string;
+  direction: "left" | "right";
 }) => {
   const ref = useRef(null);
   return (
     <CSSTransition
-      classNames="carousel-transition"
+      classNames={`carousel-transition-${direction}`}
       in={enter}
-      timeout={5000}
+      timeout={500}
       nodeRef={ref}
       mountOnEnter
       unmountOnExit
+      appear
     >
       <Image
         src={src}

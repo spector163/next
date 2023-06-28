@@ -1,33 +1,52 @@
-.carousel-transition-enter {
-  opacity: 0;
-  transform: scale(0.25) translateX(-100px);
-}
-
-.carousel-transition-enter-active {
-  opacity: 1;
-  transform: scale(1) translateX(0);
-  transform-origin: bottom left;
-  transition: opacity 5000ms, transform 5000ms ease-in;
-}
-
-.carousel-transition-appear {
+.carousel-transition-left-enter {
   opacity: 0;
   transform: scale(0.25);
 }
-
-.carousel-transition-appear-active {
-  opacity: 1;
-  transform: scale(1);
-  transition: opacity 5000ms, transform 5000ms;
-}
-.carousel-transition-exit {
+.carousel-transition-left-exit {
   opacity: 1;
   translate: 0;
   transform: scale(1);
 }
-.carousel-transition-exit-active {
+.carousel-transition-right-enter {
   opacity: 0;
   transform: scale(0.25);
-  transform-origin: top right;
-  transition: opacity 5000ms, transform 5000ms ease-out;
+}
+
+.carousel-transition-right-appear {
+  opacity: 0;
+  transform: scale(0);
+}
+.carousel-transition-right-appear-active {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: bottom;
+  transition: opacity 500ms, transform 500ms ease-in;
+}
+
+.carousel-transition-left-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: bottom left;
+  transition: opacity 500ms, transform 500ms ease-in;
+}
+
+.carousel-transition-right-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transform-origin: bottom right;
+  transition: opacity 500ms, transform 500ms ease-in;
+}
+
+.carousel-transition-left-exit-active {
+  opacity: 0;
+  transform: scale(0.25);
+  transform-origin: bottom right;
+  transition: opacity 500ms, transform 500ms ease-out;
+}
+
+.carousel-transition-right-exit-active {
+  opacity: 0;
+  transform: scale(0.25);
+  transform-origin: bottom left;
+  transition: opacity 500ms, transform 500ms ease-out;
 }
