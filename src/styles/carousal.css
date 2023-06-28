@@ -1,12 +1,13 @@
 .carousel-transition-enter {
   opacity: 0;
-  transform: scale(0.25);
+  transform: scale(0.25) translateX(-100px);
 }
 
 .carousel-transition-enter-active {
   opacity: 1;
-  transform: scale(1);
-  transition: opacity 500ms, transform 500ms ease-in;
+  transform: scale(1) translateX(0);
+  transform-origin: bottom left;
+  transition: opacity 5000ms, transform 5000ms ease-in;
 }
 
 .carousel-transition-appear {
@@ -17,31 +18,16 @@
 .carousel-transition-appear-active {
   opacity: 1;
   transform: scale(1);
-  transition: opacity 500ms, transform 500ms;
+  transition: opacity 5000ms, transform 5000ms;
 }
 .carousel-transition-exit {
   opacity: 1;
+  translate: 0;
   transform: scale(1);
 }
 .carousel-transition-exit-active {
   opacity: 0;
   transform: scale(0.25);
-  transition: opacity 500ms, transform 500ms ease-out;
-}
-
-.my-node-enter {
-  opacity: 0;
-  transform: translateX(-100%);
-}
-.my-node-enter-active {
-  opacity: 1;
-  transform: translateX(0);
-  transition: opacity transform 2000ms;
-}
-.my-node-exit {
-  opacity: 1;
-}
-.my-node-exit-active {
-  opacity: 0;
-  transition: opacity 2000ms;
+  transform-origin: top right;
+  transition: opacity 5000ms, transform 5000ms ease-out;
 }

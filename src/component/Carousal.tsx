@@ -1,13 +1,8 @@
 import Image from "next/image";
-import React, {
-  TouchEvent,
-  createRef,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { CSSTransition, TransitionGroup } from "react-transition-group";
+import useSwipe from "~/utils/useSwipe";
+import { BiSolidChevronLeft, BiSolidChevronRight } from "react-icons/bi";
 const images = [
   {
     src: "/first.jpg",
@@ -35,46 +30,51 @@ const images = [
   },
 ];
 let render = 0;
+
 const Carousal = () => {
-  const [currentIndex, setcurrentIndex] = useState(0);
-  const handleButton = (direction: "left" | "right") => {
-    if (direction == "left") {
-      setcurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const handleButton = useCallback((dir: "left" | "right") => {
+    if (dir == "left") {
+      setActiveIndex((v) => (v - 1 + images.length) % images.length);
     } else {
-      setcurrentIndex((prev) => (prev + 1) % images.length);
+      setActiveIndex((v) => (v + 1) % images.length);
     }
-  };
-  const swipeHandlers = useSwipe({
+  }, []);
+
+  const swiperHandler = useSwipe({
     trackMouse: true,
-    trackTouch: true,
     cbNext: () => handleButton("right"),
     cbPrev: () => handleButton("left"),
-    autoPlay: true,
+    autoPlay: false,
   });
-  const ref = useRef(null);
-  console.log(currentIndex, "currentIndex");
+  console.log(activeIndex, "activeIndex");
   return (
-    <div className="container__carousal relative" {...swipeHandlers}>
-      <button onClick={() => handleButton("left")} className="left">
-        left
-      </button>
-      <TransitionGroup
-        className="absolute inset-0 mx-auto grid aspect-square w-[90%] max-w-[600px] grid-cols-1"
-        ref={ref}
+    <div
+      className="relative mx-auto my-4 w-[min(750px,95%)] rounded-sm  p-4"
+      {...swiperHandler}
+    >
+      <button
+        className="absolute -left-4 top-1/2 -translate-y-1/2 border border-black bg-white p-2 shadow-md shadow-[#999] transition-transform duration-300 ease-out active:scale-75"
+        onClick={() => handleButton("left")}
       >
+        <BiSolidChevronLeft size={20} />
+      </button>
+      <button
+        className="absolute -right-4 top-1/2 -translate-y-1/2 border border-black bg-white p-2 shadow-md  shadow-[#999] transition-transform duration-300 ease-out active:scale-75"
+        onClick={() => handleButton("right")}
+      >
+        <BiSolidChevronRight size={20} />
+      </button>
+      <TransitionGroup className="relative -z-10 aspect-[3/2] w-full overflow-hidden">
         {images.map((item, index) => (
           <ChildItem
             key={index}
             alt={item.alt}
-            enter={currentIndex == index}
             src={item.src}
+            enter={index == activeIndex}
           />
         ))}
       </TransitionGroup>
-      {/* <div className="img__test">{images[currentIndex]?.alt}</div> */}
-      <button onClick={(e) => handleButton("right")} className="right">
-        right
-      </button>
     </div>
   );
 };
@@ -95,118 +95,21 @@ const ChildItem = ({
     <CSSTransition
       classNames="carousel-transition"
       in={enter}
-      timeout={500}
-      ref={ref}
+      timeout={5000}
+      nodeRef={ref}
       mountOnEnter
       unmountOnExit
     >
-      <div ref={ref}>
-        <Image
-          src={src}
-          ref={ref}
-          alt={alt}
-          width={500}
-          height={400}
-          draggable={false}
-          className="col-[1/1] row-[1/1] h-full w-full object-cover"
-          quality={100}
-        />
-      </div>
+      <Image
+        src={src}
+        ref={ref}
+        alt={alt}
+        width={500}
+        height={400}
+        draggable={false}
+        className="absolute inset-0 h-full w-full object-cover "
+        quality={100}
+      />
     </CSSTransition>
   );
-};
-
-type SwipeOptions = {
-  trackMouse?: boolean;
-  trackTouch?: boolean;
-  cbNext: () => void;
-  cbPrev: () => void;
-  autoPlay?: boolean;
-  timer?: number;
-};
-
-const useSwipe = ({
-  trackMouse = false,
-  trackTouch = true,
-  cbNext,
-  cbPrev,
-  autoPlay = false,
-  timer = 2000,
-}: SwipeOptions) => {
-  const [pause, setPause] = useState(false);
-  const startPos = useRef<number>(0);
-  const intervalRef = useRef<NodeJS.Timer>();
-
-  useEffect(() => {
-    if (!autoPlay) return;
-
-    const startInterval = () => {
-      intervalRef.current = setInterval(cbNext, timer);
-    };
-
-    if (pause) {
-      clearInterval(intervalRef.current);
-    } else {
-      startInterval();
-    }
-
-    return () => clearInterval(intervalRef.current);
-  }, [autoPlay, pause]);
-
-  const onTouchStart = useCallback((e: React.TouchEvent) => {
-    startPos.current = e.touches[0]?.clientX ?? 0;
-  }, []);
-
-  const onTouchEnd = useCallback((e: React.TouchEvent) => {
-    const endPos = e.changedTouches[0]?.clientX ?? 0;
-    const diffPos = startPos.current - endPos;
-    autoPlay && pauseAutoplay(5000); // Adjust the duration as needed
-    if (Math.abs(diffPos) > 50) {
-      diffPos > 0 ? cbNext() : cbPrev();
-    }
-  }, []);
-
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    clearInterval(intervalRef.current);
-    startPos.current = e.clientX;
-  }, []);
-
-  const onMouseUp = useCallback((e: React.MouseEvent) => {
-    const endPos = e.clientX;
-    const diffPos = startPos.current - endPos;
-    autoPlay && pauseAutoplay(5000);
-
-    if (Math.abs(diffPos) > 50) {
-      diffPos > 0 ? cbNext() : cbPrev();
-    }
-  }, []);
-  const pauseAutoplay = useCallback((duration: number) => {
-    setPause(true);
-    setTimeout(() => {
-      setPause(false);
-    }, duration);
-  }, []);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "ArrowLeft") {
-        autoPlay && pauseAutoplay(5000);
-        cbPrev();
-      } else if (event.key === "ArrowRight") {
-        autoPlay && pauseAutoplay(5000);
-        pauseAutoplay(5000);
-        cbNext();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [cbNext, cbPrev]);
-
-  return {
-    onTouchStart: trackTouch ? onTouchStart : undefined,
-    onTouchEnd: trackTouch ? onTouchEnd : undefined,
-    onMouseDown: trackMouse ? onMouseDown : undefined,
-    onMouseUp: trackMouse ? onMouseUp : undefined,
-  };
 };
